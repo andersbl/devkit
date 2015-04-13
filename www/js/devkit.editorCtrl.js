@@ -19,7 +19,9 @@ app.controller("editorCtrl", function($scope, $rootScope, windowEventsFactory) {
     });
     
     $rootScope.$on('editor.close', function(){
-		$scope.close( $scope.active );
+	    $scope.$apply(function(){
+			$scope.close( $scope.active );
+		});
     });
     
     windowEventsFactory.addToQueue('close', function(){
@@ -115,12 +117,15 @@ app.controller("editorCtrl", function($scope, $rootScope, windowEventsFactory) {
 	   
 	    var activeFile = $scope.files[ $scope.active ];
 	    
-	    fs.writeFileSync( activeFile.path, activeFile.code );
-				
-		activeFile._changed = false;
+	    fs.writeFile( activeFile.path, activeFile.code, function(){
+		    $scope.$apply(function(){
+			    activeFile._changed = false;
+			
+				$rootScope.$emit('editor.saved');
+				$rootScope.$emit('editor.saved.' + activeFile.path);
+			});
+	    });
 		
-		$rootScope.$emit('editor.saved');
-		$rootScope.$emit('editor.saved.' + activeFile.path);
     }
     
     // get info (which views & widgets)
@@ -144,14 +149,17 @@ app.controller("editorCtrl", function($scope, $rootScope, windowEventsFactory) {
 		
 		// "/animations/*.js"
 	    if( file.ext == '.js' && file.dir == '/animations' ) {
-		    view = 'codemirror';
 		    widgets = [ 'ledring' ];
 		}
 		
 		// "*.svg"
 	    if( file.ext == '.svg' ) {
-		    view = 'codemirror';
 		    widgets = [ 'svg' ];
+		}
+		
+		// "*.md"
+	    if( file.ext == '.md' ) {
+		    widgets = [ 'markdown' ]
 		}
 		
 	    return {

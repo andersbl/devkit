@@ -66,25 +66,9 @@ app.controller("authCtrl", function($scope, $rootScope, $http, $filter, $timeout
 				$rootScope.user.email 		= data.email;
 				$rootScope.user.avatar 		= data.avatar;
 				
-				$scope.getHomeys();
+				$rootScope.user.homeys		= data.homeys;
 				
-			})
-			.error(function( data ){
-				$rootScope.user.status = 'logged-out';
-				$rootScope.user.statusMessage = 'Error logging in!';
-				console.log(arguments)
-			});
-		
-	}
-	
-	$scope.getHomeys = function(){
-		
-		$http
-			.get('https://api.athom.nl/homey')
-			.success(function( homeys ){
-				$rootScope.user.homeys = homeys;
-				
-				if( homeys.length > 0 ) {
+				if( $rootScope.user.homeys.length > 0 ) {
 				
 					// if we have a prefered active homey, set it
 					if( typeof window.localStorage.activeHomey == 'string' ) {
@@ -94,23 +78,25 @@ app.controller("authCtrl", function($scope, $rootScope, $http, $filter, $timeout
 							$rootScope.sharedVars.activeHomey = window.localStorage.activeHomey;							
 						} else {
 							// select first Homey as active by default	
-							$rootScope.sharedVars.activeHomey = homeys[0]._id;
+							$rootScope.sharedVars.activeHomey = $rootScope.user.homeys[0]._id;
 						}
 						
 					} else {
 						// select first Homey as active by default	
-						$rootScope.sharedVars.activeHomey = homeys[0]._id;
+						$rootScope.sharedVars.activeHomey = $rootScope.user.homeys[0]._id;
 					}
 				} else {
 					alert("You don't have access to any Homeys!");
 				}
-				
+								
 			})
 			.error(function( data ){
-				console.log(data)
+				$rootScope.user.status = 'logged-out';
+				$rootScope.user.statusMessage = 'Error logging in!';
+				console.log(arguments)
 			});
+		
 	}
-
 	// listen for a message from the iframe
 	window.addEventListener('message', function(e) {		
 		$scope.$apply(function(){

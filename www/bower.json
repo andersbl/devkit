@@ -16,6 +16,7 @@
   ],
   "dependencies": {
     "angular-hotkeys": "chieffancypants/angular-hotkeys#~1.4.5",
-    "ng-tags-input": "2.3.0"
+    "ng-tags-input": "2.3.0",
+    "angular-markdown-directive": "~0.3.1"
   }
 }

@@ -2,23 +2,25 @@ var path 		= require('path');
 
 var open		= require("open");
 var fs			= require('fs-extra')
-var watchTree 	= require("fs-watch-tree").watchTree;
 var trash		= require('trash');
 
-app.controller("sidebarCtrl", function($scope, $rootScope) {
+app.controller("sidebarCtrl", function($scope, $rootScope, $timeout) {
 	
 	$scope.filetree = {};
 	$scope.selected = [];
+	$scope.expanded = [];
 	
 	$rootScope.$on('project.loaded', function(){
-			
+		
 		// watch for any changes in the directory
-		var watch = watchTree($rootScope.project.path, function (event) {
+		// TODO: this is slow
+		
+		fs.watch( $rootScope.project.path, function(){
 			$scope.update();
 		});
 
 		$scope.update();
-		
+	
 	});
 	
 	$scope.select = function( event, path ){
@@ -39,6 +41,26 @@ app.controller("sidebarCtrl", function($scope, $rootScope) {
 		
 	}
 	
+	$scope.isSelected = function( path ) {
+		return $scope.selected.indexOf(path) > -1;
+	}
+	
+	$scope.expand = function( path ){
+		
+		// check if already expanded
+		var index = $scope.expanded.indexOf(path);
+		if( index > -1  ) {
+			$scope.expanded.splice(index, 1);
+		} else {
+			$scope.expanded.push( path );
+		}
+		
+	}
+	
+	$scope.isExpanded = function( path ) {
+		return $scope.expanded.indexOf(path) > -1;		
+	}
+	
 	// rename a file
 	$scope.submitRename = function( item ){
 		
@@ -46,14 +68,13 @@ app.controller("sidebarCtrl", function($scope, $rootScope) {
 		var itemFolder = path.dirname( item.path );
 		var newPath = path.join( itemFolder, item.name );
 		
-		fs.rename( currentPath, newPath );
+		fs.rename( currentPath, newPath, function(){
+			$scope.$apply(function(){
+				item.renaming = false;				
+			});
+		});
 		
-		item.renaming = false;
 		
-	}
-	
-	$scope.isSelected = function( path ) {
-		return $scope.selected.indexOf(path) > -1;
 	}
 	
 	// open a new file on sidebar click
@@ -70,9 +91,12 @@ app.controller("sidebarCtrl", function($scope, $rootScope) {
 		console.log( event, item );
 	}
 	
+	
 	$scope.update = function(){
-		$scope.filetree = readdirSyncRecursive( $rootScope.project.path, true );
-		$scope.$apply();
+		$timeout.cancel( $scope.updateTimeout );
+		$scope.updateTimeout = $timeout(function(){
+			$scope.filetree = readdirSyncRecursive( $rootScope.project.path, true );
+		}, 100);
 	}
 	
 	$scope.dropped = function( event, file, dropped_path ){
@@ -182,6 +206,16 @@ app.controller("sidebarCtrl", function($scope, $rootScope) {
 			fs.ensureDir( path.join( folder, newFolderName) );
 		}}));
 		ctxmenu.append(new gui.MenuItem({ label: 'New File', click: function(){
+			$scope.ctxmenu.newfile( item );
+		} }));
+		
+		// Popup as context menu
+		ctxmenu.popup( event.clientX, event.clientY );
+	}
+	
+	$scope.ctxmenu = {
+		newfile: function( item ){			
+			
 			var newFileName = 'Untitled File';
 			
 			if( typeof item == 'undefined' ) {
@@ -194,25 +228,28 @@ app.controller("sidebarCtrl", function($scope, $rootScope) {
 					var folder = item.path;
 				}
 			}
-						
+									
 			fs.ensureFile( path.join( folder, newFileName) );
 			
-		} }));
-		
-		// Popup as context menu
-		ctxmenu.popup( event.clientX, event.clientY );
+			$scope.update();
+		}
 	}
 	
 });
 
 function readdirSyncRecursive( dir, root ) {
-	
+		
 	root = root || false;
 	
 	var result = [];
 	
 	var contents = fs.readdirSync( dir );
 	contents.forEach(function(item){
+		
+		// hide dotfiles
+		if( !window.localStorage.showDotFiles ) {
+			if( item.charAt(0) == '.' ) return;
+		}
 		
 		var item_path = path.join(dir, item);
 		var item_stats = fs.lstatSync( item_path );

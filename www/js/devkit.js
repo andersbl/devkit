@@ -8,7 +8,7 @@ window.ondragover = function(e) { e.preventDefault(); return false };
 window.ondrop = function(e) { e.preventDefault(); return false };
 
 // create the angular app
-var app = angular.module('devkit', ['ui.codemirror', 'ngTagsInput']);
+var app = angular.module('devkit', ['ui.codemirror', 'ngTagsInput', 'ngSanitize', 'btford.markdown']);
 
 // whitelist for iframe and assets
 app.config(function($sceDelegateProvider) {

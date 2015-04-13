@@ -3,7 +3,7 @@
 Create Homey apps without any effort!
 
 ### Usage
-*This is probably what you want when you want to make Homey apps.*
+*Want to create Homey apps? This is probably what you want*
 
 Download a pre-built version from https://developers.athom.nl
 
@@ -12,8 +12,13 @@ Download a pre-built nw.js binary from http://nwjs.io, and execute `run.sh` in y
 
 ### Build instructions
 
-1. install node-webkit-builder ```npm install node-webkit-builder -g```
-2. run ```nwbuild .``` in the directory of this repository
+1. clone this repo ```git clone https://github.com/athombv/devkit.git```
+2. cd to the directory ```cd devkit```
+3. install the node packages ```npm install```
+4. install the bower packages ```cd www; bower install; cd ..```
+5. install node-webkit-builder ```npm install node-webkit-builder -g```
+6. run ```nwbuild .``` in the directory of this repository
+7. find your build in the ```./build``` directory
 
 ### Docs
 _this will be improved over time_

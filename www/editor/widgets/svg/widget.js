@@ -1,4 +1,4 @@
-app.controller("svgWidgetCtrl", function( $scope, $rootScope, $http, $interval ){
+app.controller("svgWidgetCtrl", function( $scope, $rootScope ){
 	
 	$scope.src = $scope.file_path;
 	

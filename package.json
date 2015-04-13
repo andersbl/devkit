@@ -1,5 +1,5 @@
 {
-  "name": "Homey Devkit",
+  "name": "devkit",
   "version": "0.1.0",
   "description": "Homey Development Kit",
   "private": true,
@@ -7,7 +7,6 @@
     "archiver": "^0.14.3",
     "form-data": "^0.2.0",
     "fs-extra": "^0.18.0",
-    "fs-watch-tree": "^0.2.5",
     "open": "0.0.5",
     "request": "^2.54.0",
     "semver": "*",
@@ -25,5 +24,8 @@
     "height": 550,
     "min_width": 800,
     "min_height": 550
+  },
+  "devDependencies": {
+    "node-webkit-builder": "^1.0.11"
   }
 }
